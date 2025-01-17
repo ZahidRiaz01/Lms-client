@@ -153,33 +153,6 @@ const CoursesPage = () => {
                   {course.name}
                 </h2>
                 <p className="text-gray-600 mt-2">{course.description}</p>
-                <div className=" mt-4 right-4 flex space-x-2">
-                  {/* Edit Icon */}
-                  {/* <Button
-                    type="link"
-                    onClick={(e) => {
-                      e.stopPropagation(); // Prevent triggering navigation
-                      setIsDrawerOpen(true);
-                      setSelectedCourse(course); // Set selected course for editing
-                    }}
-                    icon={<EditOutlined />}
-                    className="text-blue-500"
-                  >
-                    Edit
-                  </Button> */}
-
-                  {/* <Button
-                    type="link"
-                    icon={<DeleteOutlined />}
-                    danger
-                    onClick={(e) => {
-                      e.stopPropagation(); // Prevent triggering navigation
-                      handleDeleteCourse(course.id);
-                    }}
-                  >
-                    Delete
-                  </Button> */}
-                </div>
               </div>
             ))}
           </div>
