@@ -7,13 +7,16 @@ import LectureDetail from './LectureDetailpage';
 import LearningProcess from './Pages/LearningProcess';
 import DeviceChange from './Pages/DeviceChange';
 import Announcements from './Pages/Announcements';
+import CoursesPage from './Pages/Courses';
 
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Login />} />
-        <Route path="/lectures" element={<Lectures />} />
+        <Route path="/courses" element={<CoursesPage />} />
+
+        <Route path="/lectures/:id" element={<Lectures />} />
         <Route path="/lecture/:id" element={<LectureDetail />} />
         <Route path="/learning" element={<LearningProcess />} />
         <Route path="/device" element={<DeviceChange />} />

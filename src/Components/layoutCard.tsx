@@ -8,6 +8,7 @@ import {
   LogoutOutlined,
 } from '@ant-design/icons';
 import { Button } from 'antd';
+import TokenService from '../lib/localStorageService';
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -24,14 +25,14 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   const location = useLocation();
 
   const handleLogout = () => {
-    // Implement logout logic here
+    TokenService.removeToken();
     navigate('/');
   };
 
   const menuItems = [
     {
-      path: '/lectures',
-      label: 'Lectures',
+      path: '/courses',
+      label: 'Courses',
       icon: <VideoCameraOutlined className="mr-3 text-lg" />,
     },
     {
