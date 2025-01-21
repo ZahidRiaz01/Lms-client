@@ -21,8 +21,11 @@ export default function Login() {
         userRole: 'student',
       });
       const token = response?.data?.accessToken;
+      const userId = response?.data?.user?.id;
+
       hideMessage();
       TokenService.setToken(token);
+      TokenService.setUser(userId);
 
       message.success('Login successful! Redirecting to dashboard...');
       navigate('/courses');

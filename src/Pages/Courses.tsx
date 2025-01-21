@@ -1,16 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Drawer, Input, Button, Form, message } from 'antd';
 import api from './api';
-import {
-  EditOutlined,
-  DeleteOutlined,
-  UserAddOutlined,
-} from '@ant-design/icons';
 
 import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '../Components/layoutCard';
+import TokenService from '../lib/localStorageService';
 
 const CoursesPage = () => {
+  const userid = TokenService.getUser();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [courses, setCourses] = useState<any>([]);
   const [loading, setLoading] = useState(true);
@@ -19,7 +16,7 @@ const CoursesPage = () => {
 
   const fetchCourseData = async () => {
     try {
-      const response: any = await api.get('/courses');
+      const response: any = await api.get(`users/courses/getAll`);
       const respData = response.data;
       setCourses(
         respData.map((course: any) => ({
@@ -35,33 +32,18 @@ const CoursesPage = () => {
     }
   };
 
-  // const handleDeleteCourse = async (id: string) => {
-  //   try {
-  //     const confirmed = window.confirm(
-  //       'Are you sure you want to delete this course?'
-  //     );
-  //     if (!confirmed) return;
-
-  //     await api.delete(`/courses/${id}`); // Replace with your delete API
-  //     setCourses(courses.filter((course: any) => course.id !== id)); // Update state after deletion
-  //   } catch (error) {
-  //     console.error('Error deleting course:', error);
-  //   }
-  // };
   const handleEditCourse = async (values: {
     name: string;
     description: string;
   }) => {
     try {
       if (selectedCourse) {
-        // Update existing course
         const updatedCourseResponse = await api.patch(
           `courses/${selectedCourse.id}`,
           values
         );
         const updatedCourse = updatedCourseResponse.data;
 
-        // Update state with the edited course
         setCourses(
           courses.map((course: any) =>
             course.id === updatedCourse.id
@@ -71,11 +53,9 @@ const CoursesPage = () => {
         );
         message.success('Course Updated Successfully');
       } else {
-        // Create new course
         const newCourseResponse = await api.post('courses', values);
         const newCourse = newCourseResponse.data;
 
-        // Add the new course to the state
         setCourses([
           ...courses,
           {
@@ -98,32 +78,6 @@ const CoursesPage = () => {
     }
   };
 
-  // const handleEditCourse = async (values: {
-  //   name: string;
-  //   description: string;
-  // }) => {
-  //   try {
-  //     const newCourseResponse = await api.post('courses', values);
-  //     const newCourse = newCourseResponse.data;
-  //     setCourses([
-  //       ...courses,
-  //       {
-  //         id: newCourse.id,
-  //         name: newCourse.name,
-  //         description: newCourse.description,
-  //       },
-  //     ]);
-
-  //     setIsDrawerOpen(false);
-  //     message.success('Course Created Successfully');
-  //   } catch (error: any) {
-  //     message.error(
-  //       error?.response?.data?.message ||
-  //         'Error creating a course . Please try again.'
-  //     );
-  //     console.log('Error while creating a course', error);
-  //   }
-  // };
   useEffect(() => {
     fetchCourseData();
   }, []);
@@ -134,7 +88,6 @@ const CoursesPage = () => {
       description="Your courses are organized and ready to view. Dive in!"
     >
       <div className="p-8 bg-gray-50 min-h-screen">
-        {/* Page Header */}
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-2xl font-bold text-gray-800">Courses</h1>
         </div>
@@ -167,7 +120,7 @@ const CoursesPage = () => {
         >
           <Form
             layout="vertical"
-            onFinish={handleEditCourse} // Function to handle edit submission
+            onFinish={handleEditCourse}
             initialValues={{
               name: selectedCourse?.name || '',
               description: selectedCourse?.description || '',

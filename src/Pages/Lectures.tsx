@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Drawer, Input, Button, Form, message } from 'antd';
 import api from './api';
 import {
@@ -13,6 +13,7 @@ import { Modal } from 'antd';
 import DashboardLayout from '../Components/layoutCard';
 
 const LecturesPage = () => {
+  const videoRef = useRef<any>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [showFileViewer, setShowFileViewer] = useState(false);
   const [fileToView, setFileToView] = useState<string | null>(null);
@@ -43,19 +44,6 @@ const LecturesPage = () => {
     }
   };
 
-  const handleDeleteLecture = async (lecId: string) => {
-    try {
-      const confirmed = window.confirm(
-        'Are you sure you want to delete this course?'
-      );
-      if (!confirmed) return;
-
-      await api.delete(`/lectures/${id}/${lecId}`); // Replace with your delete API
-      setLetures(lectures.filter((lecture: any) => lecture.id !== lecId)); // Update state after deletion
-    } catch (error) {
-      console.error('Error deleting course:', error);
-    }
-  };
   const handleEditCourse = async (values: {
     name: string;
     description: string;
@@ -115,6 +103,10 @@ const LecturesPage = () => {
   };
 
   const closeModal = () => {
+    if (videoRef?.current) {
+      videoRef?.current?.pause();
+      videoRef.current.currentTime = 0; // Reset the video to the beginning
+    }
     setIsModalOpen(false);
     setSelectedVideo(null);
   };
@@ -133,8 +125,6 @@ const LecturesPage = () => {
       description="Your lectures are organized and ready to view. Dive in!"
     >
       <div className="p-8 bg-gray-50 min-h-screen">
-        {/* Page Header */}
-
         {loading ? (
           <div className="text-center text-gray-600">Loading...</div>
         ) : (
@@ -146,7 +136,6 @@ const LecturesPage = () => {
                     key={lecture.id}
                     className="bg-white shadow-lg rounded-lg p-6 border border-gray-200 hover:shadow-xl transition"
                   >
-                    {/* Lecture Title and Description */}
                     <div className="flex flex-col items-center justify-center text-center">
                       <h2 className="text-xl font-semibold text-gray-800">
                         {lecture.name}
@@ -156,7 +145,6 @@ const LecturesPage = () => {
                       </p>
                     </div>
 
-                    {/* Render File Thumbnails */}
                     {lecture.files && lecture.files.length > 0 ? (
                       <div className="mt-6 grid grid-cols-3 gap-4">
                         {lecture.files.map((file: any) => {
@@ -237,7 +225,7 @@ const LecturesPage = () => {
           </div>
         )}
 
-        <Drawer
+        {/* <Drawer
           title="Create New Course"
           placement="right"
           onClose={() => setIsDrawerOpen(false)}
@@ -246,7 +234,7 @@ const LecturesPage = () => {
         >
           <Form
             layout="vertical"
-            onFinish={handleEditCourse} // Function to handle edit submission
+            onFinish={handleEditCourse}
             initialValues={{
               name: selectedCourse?.name || '',
               description: selectedCourse?.description || '',
@@ -283,7 +271,7 @@ const LecturesPage = () => {
               </Button>
             </Form.Item>
           </Form>
-        </Drawer>
+        </Drawer> */}
 
         <Modal
           title="Lecture Video"
@@ -294,7 +282,12 @@ const LecturesPage = () => {
           width={800}
         >
           {selectedVideo && (
-            <video controls autoPlay className="w-full rounded-lg">
+            <video
+              controls
+              autoPlay
+              className="w-full rounded-lg"
+              ref={videoRef}
+            >
               <source src={selectedVideo} />
               Your browser does not support the video tag.
             </video>
@@ -324,12 +317,6 @@ const LecturesPage = () => {
                   width="100%"
                   height="800px"
                   title="PDF Viewer"
-                />
-              ) : fileToView?.endsWith('.mp4') ? (
-                <video
-                  controls
-                  className="w-full h-auto rounded-lg"
-                  src={fileToView}
                 />
               ) : (
                 <img
