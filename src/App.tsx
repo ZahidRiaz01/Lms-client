@@ -1,5 +1,5 @@
 // src/App.jsx
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Login from './Login';
 import Lectures from './Pages/Lectures';
@@ -10,6 +10,36 @@ import Announcements from './Pages/Announcements';
 import CoursesPage from './Pages/Courses';
 
 function App() {
+  useEffect(() => {
+    const handleContextMenu = (event: any) => {
+      event.preventDefault();
+    };
+
+    const handleKeyDown = (event: any) => {
+      if (
+        (event.ctrlKey || event.metaKey) &&
+        ['s', 'p', 'u', 'c', 'v', 'x', 'a'].includes(event.key.toLowerCase())
+      ) {
+        event.preventDefault();
+      }
+      if (
+        event.keyCode === 123 ||
+        (event.ctrlKey &&
+          event.shiftKey &&
+          ['i', 'c'].includes(event.key.toLowerCase()))
+      ) {
+        event.preventDefault();
+      }
+    };
+
+    document.addEventListener('contextmenu', handleContextMenu);
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('contextmenu', handleContextMenu);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
   return (
     <Router>
       <Routes>

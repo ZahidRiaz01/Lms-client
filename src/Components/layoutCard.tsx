@@ -14,12 +14,14 @@ interface DashboardLayoutProps {
   children: ReactNode;
   title: string;
   description: string;
+  hasNewAnnouncements?: boolean;
 }
 
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   children,
   title,
   description,
+  hasNewAnnouncements = false,
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -38,7 +40,14 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     {
       path: '/announcements',
       label: 'Announcements',
-      icon: <DashboardOutlined className="mr-3 text-lg" />,
+      icon: (
+        <div className="relative">
+          <DashboardOutlined className="mr-3 text-lg" />
+          {hasNewAnnouncements && (
+            <span className="absolute -top-1 -right-2 w-2.5 h-2.5 bg-red-500 rounded-full" />
+          )}
+        </div>
+      ),
     },
 
     {

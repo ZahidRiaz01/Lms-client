@@ -1,25 +1,38 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import login from '../login.png';
 import { message } from 'antd';
 import api from '../Pages/api';
 import TokenService from '../lib/localStorageService';
+import FingerprintJS from '@fingerprintjs/fingerprintjs';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [visitId, setVisitorId] = useState('');
+  const fetchVisitorId = async () => {
+    const visitorId = await getVisitorId();
+    setVisitorId(visitorId);
+  };
   const navigate = useNavigate();
+  async function getVisitorId() {
+    const fp = await FingerprintJS.load();
+    const result = await fp.get();
+    return result.visitorId;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     const hideMessage = message.loading('Logging in, please wait...', 0);
 
     try {
       e.preventDefault();
-      const response = await api.post(`/auth/login`, {
+      const body = {
         email,
         password,
         userRole: 'student',
-      });
+        visitorId: visitId,
+      };
+      const response = await api.post(`/auth/login`, body);
       const token = response?.data?.accessToken;
       const userId = response?.data?.user?.id;
 
@@ -38,6 +51,9 @@ export default function Login() {
       hideMessage();
     }
   };
+  useEffect(() => {
+    fetchVisitorId();
+  }, []);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50">
