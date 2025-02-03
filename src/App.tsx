@@ -1,5 +1,5 @@
 // src/App.jsx
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Login from './Login';
 import Lectures from './Pages/Lectures';
@@ -10,12 +10,21 @@ import Announcements from './Pages/Announcements';
 import CoursesPage from './Pages/Courses';
 
 function App() {
-  useEffect(() => {
-    const handleContextMenu = (event: any) => {
-      event.preventDefault();
-    };
+  const [isAllowedBrowser, setIsAllowedBrowser] = useState(false);
 
-    const handleKeyDown = (event: any) => {
+  useEffect(() => {
+    const userAgent = navigator.userAgent.toLowerCase();
+    const isXvast = userAgent.includes('xvast');
+
+    if (isXvast) {
+      setIsAllowedBrowser(true);
+    } else {
+      setIsAllowedBrowser(false);
+    }
+
+    const handleContextMenu = (event: MouseEvent) => event.preventDefault();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
       if (
         (event.ctrlKey || event.metaKey) &&
         ['s', 'p', 'u', 'c', 'v', 'x', 'a'].includes(event.key.toLowerCase())
@@ -23,23 +32,46 @@ function App() {
         event.preventDefault();
       }
       if (
-        event.keyCode === 123 ||
+        ['F12', 'F10', 'F11'].includes(event.key) || // Function keys
         (event.ctrlKey &&
           event.shiftKey &&
-          ['i', 'c'].includes(event.key.toLowerCase()))
+          ['i', 'c', 'j'].includes(event.key.toLowerCase()))
       ) {
         event.preventDefault();
+      }
+      if (event.key === 'PrintScreen') {
+        navigator.clipboard.writeText('');
+        alert('Screenshot is disabled!');
       }
     };
 
     document.addEventListener('contextmenu', handleContextMenu);
     document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('keyup', handleKeyDown);
 
     return () => {
       document.removeEventListener('contextmenu', handleContextMenu);
       document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('keyup', handleKeyDown);
     };
   }, []);
+
+  if (!isAllowedBrowser) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white text-center p-5">
+        <h1 className="text-3xl font-bold">❌ Unsupported Browser</h1>
+        <p className="mt-2 text-lg">This app only works on Xvast Browser.</p>
+        <p className="mt-2">
+          Please download{' '}
+          <a href="https://www.xvast.com/" className="text-blue-400 underline">
+            Xvast Browser
+          </a>{' '}
+          to access the content.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <Router>
       <Routes>

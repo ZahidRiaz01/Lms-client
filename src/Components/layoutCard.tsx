@@ -50,11 +50,11 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       ),
     },
 
-    {
-      path: '/learning',
-      label: 'Learning Progress',
-      icon: <BarChartOutlined className="mr-3 text-lg" />,
-    },
+    // {
+    //   path: '/learning',
+    //   label: 'Learning Progress',
+    //   icon: <BarChartOutlined className="mr-3 text-lg" />,
+    // },
     {
       path: '/device',
       label: 'Device Sync',

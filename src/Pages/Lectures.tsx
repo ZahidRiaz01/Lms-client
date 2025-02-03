@@ -118,6 +118,56 @@ const LecturesPage = () => {
   useEffect(() => {
     fetchLectureData();
   }, []);
+  useEffect(() => {
+    const handleContextMenu = (event: MouseEvent) => event.preventDefault();
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (
+        (event.ctrlKey || event.metaKey) &&
+        ['s', 'p', 'u', 'c', 'v', 'x', 'a'].includes(event.key.toLowerCase())
+      ) {
+        event.preventDefault();
+      }
+      if (
+        event.keyCode === 123 || // F12
+        (event.ctrlKey &&
+          event.shiftKey &&
+          ['i', 'c'].includes(event.key.toLowerCase()))
+      ) {
+        event.preventDefault();
+      }
+      if (event.key === 'PrintScreen') {
+        navigator.clipboard.writeText('');
+        alert('Screenshot is disabled!');
+      }
+    };
+
+    document.addEventListener('contextmenu', handleContextMenu);
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('contextmenu', handleContextMenu);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleScreenCapture = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getDisplayMedia({
+          video: true,
+        });
+        stream.getTracks().forEach((track) => track.stop());
+        alert('Screen recording is not allowed!');
+        closeModal();
+      } catch (error) {
+        console.error('Error detecting screen capture:', error);
+      }
+    };
+
+    if (isModalOpen) {
+      handleScreenCapture();
+    }
+  }, [isModalOpen]);
 
   return (
     <DashboardLayout
@@ -225,54 +275,6 @@ const LecturesPage = () => {
           </div>
         )}
 
-        {/* <Drawer
-          title="Create New Course"
-          placement="right"
-          onClose={() => setIsDrawerOpen(false)}
-          open={isDrawerOpen}
-          width={400}
-        >
-          <Form
-            layout="vertical"
-            onFinish={handleEditCourse}
-            initialValues={{
-              name: selectedCourse?.name || '',
-              description: selectedCourse?.description || '',
-            }}
-          >
-            <Form.Item
-              label="Course Name"
-              name="name"
-              rules={[
-                { required: true, message: 'Please enter the course name!' },
-              ]}
-            >
-              <Input placeholder="Enter course name" />
-            </Form.Item>
-            <Form.Item
-              label="Description"
-              name="description"
-              rules={[
-                {
-                  required: true,
-                  message: 'Please enter the course description!',
-                },
-              ]}
-            >
-              <Input.TextArea rows={4} placeholder="Enter course description" />
-            </Form.Item>
-            <Form.Item>
-              <Button
-                type="primary"
-                htmlType="submit"
-                className="bg-blue-500 hover:bg-blue-600 w-full"
-              >
-                Submit
-              </Button>
-            </Form.Item>
-          </Form>
-        </Drawer> */}
-
         <Modal
           title="Lecture Video"
           visible={isModalOpen}
@@ -287,6 +289,7 @@ const LecturesPage = () => {
               autoPlay
               className="w-full rounded-lg"
               ref={videoRef}
+              controlsList="nodownload"
             >
               <source src={selectedVideo} />
               Your browser does not support the video tag.
