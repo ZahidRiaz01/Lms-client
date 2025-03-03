@@ -98,14 +98,20 @@ const LecturesPage = () => {
   };
 
   const handleVideoClick = (videoUrl: string) => {
-    setSelectedVideo(videoUrl);
-    setIsModalOpen(true);
+    closeModal();
+
+    setTimeout(() => {
+      setSelectedVideo(videoUrl);
+      setIsModalOpen(true);
+    }, 100);
   };
 
   const closeModal = () => {
     if (videoRef?.current) {
-      videoRef?.current?.pause();
-      videoRef.current.currentTime = 0; // Reset the video to the beginning
+      videoRef.current.pause();
+      videoRef.current.src = ''; // Clear the source
+      videoRef.current.load(); // Force reload
+      videoRef.current.currentTime = 0;
     }
     setIsModalOpen(false);
     setSelectedVideo(null);
@@ -116,63 +122,20 @@ const LecturesPage = () => {
   };
 
   useEffect(() => {
+    if (isModalOpen && selectedVideo && videoRef.current) {
+      videoRef.current.src = selectedVideo;
+      videoRef.current.load();
+    }
+  }, [isModalOpen, selectedVideo]);
+
+  useEffect(() => {
     fetchLectureData();
   }, []);
-  useEffect(() => {
-    const handleContextMenu = (event: MouseEvent) => event.preventDefault();
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (
-        (event.ctrlKey || event.metaKey) &&
-        ['s', 'p', 'u', 'c', 'v', 'x', 'a'].includes(event.key.toLowerCase())
-      ) {
-        event.preventDefault();
-      }
-      if (
-        event.keyCode === 123 || // F12
-        (event.ctrlKey &&
-          event.shiftKey &&
-          ['i', 'c'].includes(event.key.toLowerCase()))
-      ) {
-        event.preventDefault();
-      }
-      if (event.key === 'PrintScreen') {
-        navigator.clipboard.writeText('');
-        alert('Screenshot is disabled!');
-      }
-    };
-
-    document.addEventListener('contextmenu', handleContextMenu);
-    document.addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      document.removeEventListener('contextmenu', handleContextMenu);
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, []);
-
-  useEffect(() => {
-    const handleScreenCapture = async () => {
-      try {
-        const stream = await navigator.mediaDevices.getDisplayMedia({
-          video: true,
-        });
-        stream.getTracks().forEach((track) => track.stop());
-        alert('Screen recording is not allowed!');
-        closeModal();
-      } catch (error) {
-        console.error('Error detecting screen capture:', error);
-      }
-    };
-
-    if (isModalOpen) {
-      handleScreenCapture();
-    }
-  }, [isModalOpen]);
 
   return (
     <DashboardLayout
       title="Subscribed Lectures"
-      description="Your lectures are organized and ready to view. Dive in!"
+      description="Your lectures are organized and ready to view. Dive in!12"
     >
       <div className="p-8 bg-gray-50 min-h-screen">
         {loading ? (
